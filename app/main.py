@@ -7,33 +7,33 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000"],  # Portas frontend/backend
+    allow_origins=["http://localhost:4200", "http://localhost:8000"],  # Portas frontend/backend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/api/item")
-async def get_item():
-    # Exemplo: use serviço para dados (retorne dict simulado ou real)
+@app.get("/", include_in_schema=False)
+async def root():
+    return {"message": "API rodando"}
+
+@app.get("/api/commander")
+async def get_commander():
+    tags = []
     commander = scryfall.randomize_commander()
     ehdrec_data = ehdrec.get_edh_data(commander.get('formated-name'))
-    print(ehdrec_data)
-    # print(commander.get('scryfall')['image_uris']['normal'])
+
+    for item in ehdrec_data:
+        tags.append({"label": item[0], "link": item[1]})
+
+    
     return {
         "image": commander.get('scryfall')['image_uris']['normal'],
         "title": commander.get('scryfall')['name'],
         "description": commander.get('scryfall')['oracle_text'],
+        "tags": tags
     }
 
-# commander = scryfall.randomize_commander()
-# print(f'Randomized commander: {commander.get('Original-Name')}\n')
-# data = ehdrec.get_edh_data(commander.get('Formated-Name'))
-
-# print('Tags e Links:')
-# for item in data:
-#     print(f'{item[0]}: {item[1]}')
-#     print('-----')  
 
 
 
