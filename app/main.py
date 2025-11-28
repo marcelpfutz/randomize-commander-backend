@@ -2,12 +2,23 @@ from .services import scryfall_service as scryfall
 from .services import ehdrec_service as ehdrec
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 app = FastAPI()
 
+# Configurar origens permitidas baseado no ambiente
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+if ENVIRONMENT == "production":
+    # Em produção, permitir apenas o domínio do frontend
+    # Você pode definir isso via variável de ambiente ALLOWED_ORIGINS
+    allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+else:
+    # Em desenvolvimento, permitir localhost
+    allowed_origins = ["http://localhost:4200", "http://localhost:8000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "http://localhost:8000"],  # Portas frontend/backend
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
